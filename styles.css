@@ -1,0 +1,113 @@
+body {
+    font-family: sans-serif;
+    background-image: url('img/dart.jpeg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;    
+    background-size: cover;
+    color: white;
+}
+
+h1 {
+    width: 100%;
+    text-align: center;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    font-size: 3em;
+}
+
+.center {
+    margin: auto;
+}
+
+.small {
+    max-width: 80px;
+}
+
+.startgame {
+    display: grid;
+    width: 50%;
+    margin: auto;
+    margin-top: 5px;
+    grid-template-columns: 50% 50%;
+    font-size: large;
+}
+
+.infobox {
+    display: grid;
+    width: 50%;
+    margin: auto;
+    margin-top: 5px;
+    grid-template-columns: 50% 50%;
+}
+
+#numplayers {
+    align-self: right;
+}
+
+#missing {
+    font-size: 2em;
+}
+
+.missingbox {
+    background-color: rgba(208, 208, 208, 0);
+    color: white;
+    border: none;
+    border-top: none;
+}
+
+button {
+    max-width: 100px;
+    height: 40px;
+    border: 1px rgba(0, 0, 0, 0.6);
+    font-size: large;
+    border-radius: 5px;
+    align-self: left;
+}
+
+#players-grid {
+    display: grid;
+    grid-template-columns: auto;
+    max-width: 90%;
+    margin-top: 2em;
+}
+
+#score-grid {
+    display: grid;
+    grid-template-columns: auto;
+    max-width: 90%;
+}
+
+#p0r0, #p1r0, #p2r0, #p3r0, #p4r0, #p5r0, #p6r0, #p7r0, #p8r0, #p9r0 {
+    background-color: rgba(208, 208, 208, 1);
+}
+
+.singlerow {
+    grid-template-columns: auto auto auto auto auto auto auto auto auto auto ;
+    display: grid;
+    justify-self: center;
+    background-color: none;
+  }
+
+input {
+    margin: 0;
+    background-color: rgba(208, 208, 208, 0.80);
+    margin-bottom: 3px;
+    height: 40px;
+    border: 1px white solid;
+    border-radius: 0.5em;
+    text-align: center;
+    min-width: 50px;
+    max-width: 95%;
+    justify-self: center;
+    font-size: 2em;
+    color: #0d0d0d;
+}
+
+.hide {
+    display: none;
+}
+
+.show {
+    display: inline-block;
+}
