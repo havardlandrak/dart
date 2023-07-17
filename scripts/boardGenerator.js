@@ -18,6 +18,7 @@ function updateBoard(players) {
     if (document.getElementById("players-grid").innerHTML=="") {
         createScoreKeeper()
         addSingleRow(0);
+        addSingleRow(1, true);
     }
     updatePlayers(players)
 }
@@ -31,16 +32,16 @@ function createScoreKeeper() {
     var singlerow = document.createElement("div")
     var inner = "";
     for (var player = 0; player < 10; player++) {
-        inner += '<input id="missing' + player + '" class="center missingbox misplayer' + player + '" readonly disabled onkeydown="return handleKeyPress(event)"/>'
+        inner += '<input id="missing' + player + '" class="center missingbox misplayer' + player + '" readonly disabled/>'
     }
     singlerow.innerHTML = inner;
     singlerow.className = "singlerow center";
     document.getElementById("score-grid").appendChild(singlerow);
 }
 
-function addSingleRow(row) {
+function addSingleRow(row, overrideflag = false) {
     // TODO: only add row if any info on current row
-    if (row != 0) {
+    if (row != 0 && !overrideflag) {
         if (isEmptyRow(row - 1)) {
             return;
         }
@@ -48,7 +49,7 @@ function addSingleRow(row) {
     var singlerow = document.createElement("div")
     var inner = "";
     for (var player = 0; player < 10; player++) {
-        inner += '<input id="p' + player + 'r' + row + '" class="scorebox player' + player + '" onkeyup="handleKeyUp()" onkeydown="return handleKeyPress(event)"/>'
+        inner += '<input id="p' + player + 'r' + row + '" class="scorebox player' + player + '" onkeyup="handleKeyUp()"/>'
     }
     singlerow.innerHTML = inner;
     singlerow.className = "singlerow center";
@@ -123,14 +124,20 @@ function isLastRow(current) {
 function handleKeyPress(e) {
         var current = document.activeElement.id
         var players = document.getElementById("numplayers").value
-        if (e.key == "Enter") {
-            if (getRow(current) == 0) {
-                return;
+        if (current == "gointo" || current == "body") {
+            if (e.ctrlKey && e.keyCode == 187) {
+                addPlayer(parseInt(players))
             }
-            if (isMath(getCellValue(current))) {
+            else if (e.ctrlKey && e.keyCode == 189) {
+                removePlayer(parseInt(players))
+            }
+            return
+        }
+        if (e.key == "Enter") {
+            if (isMath(getCellValue(current)) && getRow(current) != 0) {
                 doMath(current)
             }
-            if (getRow(current) != 1) {
+            if (getRow(current) != 0) {
                 addPreviousToCurrent(current)
             }
             if (isLastRow(current) && getPlayer(current) == parseInt(players) - 1) {
@@ -157,7 +164,10 @@ function handleKeyPress(e) {
 
 function handleKeyUp() {
     var current = document.activeElement.id
-    if (getRow(current) != 0) {
+    if (current == "goingto") {
+        generateBoard()
+    } 
+    else if (getRow(current) != 0) {
         for (i = 0; i < 10; i++) {
             whatsMissing("p"+i+current.substring(2))
         }
@@ -227,17 +237,27 @@ function getLastValidScore(current) {
 }
 
 function addPreviousToCurrent(current) {
-    var newValue = getScoreAbove(current) + parseInt(getCellValue(current))
+    var currentInt = 0
+    if (Number.isNaN(parseInt(getCellValue(current)))) {
+        return
+    }
+    else {
+        currentInt = parseInt(getCellValue(current))
+    }
+
+    var newValue = getScoreAbove(current) + currentInt
     document.getElementById(current).value = newValue
 }
 
 function checkScore(current) {
-
     try {
         var currentValue = Function(`'use strict'; return (${getCellValue(current)})`)()
     }
     catch {
         var currentValue = getCellValue(current)
+    }
+    if (current == "plus" || current == "minus") {
+        return
     }
     var goingto = parseInt(document.getElementById("goingto").value)
     var color = "rgba(208, 208, 208, 0.80)"
@@ -266,7 +286,7 @@ function doMath(current) {
     }
 }
 
-function changeBox(current, direction, players) {
+function changeBox(current, direction) {
     if (current.charAt(0) != "p") {
         return;
     }
@@ -302,14 +322,20 @@ function changeBox(current, direction, players) {
     }
 }
 
-function addPlayer(players) {
+function addPlayer(players = parseInt(document.getElementById("numplayers").value)) {
     players += 1
+    if (players > 10 || players < 1) {
+        return
+    }
     document.getElementById("numplayers").value = players
     updateBoard(players)
 }
 
-function removePlayer(players) {
+function removePlayer(players = parseInt(document.getElementById("numplayers").value)) {
     players -= 1 
+    if (players > 10 || players < 1) {
+        return
+    }
     document.getElementById("numplayers").value = players
     updateBoard(players)
 }
