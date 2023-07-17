@@ -31,7 +31,7 @@ function createScoreKeeper() {
     var singlerow = document.createElement("div")
     var inner = "";
     for (var player = 0; player < 10; player++) {
-        inner += '<input id="missing' + player + '" class="center missingbox misplayer' + player + '" readonly onkeydown="return handleKeyPress(event)"/>'
+        inner += '<input id="missing' + player + '" class="center missingbox misplayer' + player + '" readonly disabled onkeydown="return handleKeyPress(event)"/>'
     }
     singlerow.innerHTML = inner;
     singlerow.className = "singlerow center";
@@ -40,6 +40,11 @@ function createScoreKeeper() {
 
 function addSingleRow(row) {
     // TODO: only add row if any info on current row
+    if (row != 0) {
+        if (isEmptyRow(row - 1)) {
+            return;
+        }
+    }
     var singlerow = document.createElement("div")
     var inner = "";
     for (var player = 0; player < 10; player++) {
@@ -48,6 +53,15 @@ function addSingleRow(row) {
     singlerow.innerHTML = inner;
     singlerow.className = "singlerow center";
     document.getElementById("players-grid").appendChild(singlerow);
+}
+
+function isEmptyRow(row) {
+    for (var player = 0; player < 10; player++) {
+        if (document.getElementById(generateCellId(player,row)).value != "") {
+            return false;
+        }
+    }
+    return true;
 }
 
 function hidePlayers(players) {
@@ -123,13 +137,17 @@ function handleKeyPress(e) {
                 addSingleRow(getRow(current)+1)
                 updateBoard(parseInt(players))
             }
+            handleKeyUp()
             goToNextPlayer(current)
         }
-        else if (e.key == "ArrowDown" || e.key == "ArrowUp" || e.key == "ArrowLeft" || e.key == "ArrowRight") {
+        else if (e.key == "ArrowDown" || e.key == "ArrowUp") {
             changeBox(current, e.key.split("row")[1], players)
         }
-        else if (e.key == "Alt") {
+        else if (e.ctrlKey && e.keyCode == 187) {
             addPlayer(parseInt(players))
+        }
+        else if (e.ctrlKey && e.keyCode == 189) {
+            removePlayer(parseInt(players))
         }
         else if (e.key == "Tab" && isLastRow(current) && getPlayer(current) == parseInt(players) - 1) {
             addSingleRow(getRow(current)+1)
@@ -139,11 +157,10 @@ function handleKeyPress(e) {
 
 function handleKeyUp() {
     var current = document.activeElement.id
-    for (i = 0; i < 10; i++) {
-        whatsMissing("p"+i+current.substring(2))
-    }
-
     if (getRow(current) != 0) {
+        for (i = 0; i < 10; i++) {
+            whatsMissing("p"+i+current.substring(2))
+        }
         checkScore(current)
     }
 }
@@ -190,7 +207,7 @@ function getScoreAbove(current) {
         return getScoreAbove("p"+getPlayer(current)+"r"+(getRow(current)-1))
     }
     try {
-        var score = parseInt(getDifferentRow(current, prevRow))
+        var score = parseInt(score)
         return score;
     }
     catch {
@@ -215,15 +232,22 @@ function addPreviousToCurrent(current) {
 }
 
 function checkScore(current) {
-    var currentValue = parseInt(getCellValue(current))
+
+    try {
+        var currentValue = Function(`'use strict'; return (${getCellValue(current)})`)()
+    }
+    catch {
+        var currentValue = getCellValue(current)
+    }
+    var goingto = parseInt(document.getElementById("goingto").value)
     var color = "rgba(208, 208, 208, 0.80)"
-    if (getCellValue(current) == "69") {
+    if (currentValue == "69") {
         color = "hotpink";
     }
-    else if (currentValue == parseInt(document.getElementById("goingto").value)) {
+    else if (currentValue == goingto) {
         color = "green"
     }
-    else if (currentValue > parseInt(document.getElementById("goingto").value)) {
+    else if (currentValue > goingto) {
         color = "red"
     }
     document.getElementById(current).style.backgroundColor = color
@@ -271,7 +295,11 @@ function changeBox(current, direction, players) {
         }
     }
     var newCell = "p"+player+"r"+row
-    document.getElementById(newCell).focus()
+    try {
+        document.getElementById(newCell).focus()
+    } catch {
+        console.log("Could not navigate to non-existing cell: " + newCell)
+    }
 }
 
 function addPlayer(players) {
@@ -292,7 +320,11 @@ function goToNextPlayer(current) {
     if (player == 0) {
         row += 1;
     }
-    document.getElementById(generateCellId(player, row)).focus()
+    try {
+        document.getElementById(generateCellId(player, row)).focus()
+    } catch {
+        console.log("Could not navigate to non-existing cell: " + generateCellId(player, row))
+    }
 }
 
 function generateCellId(player, row) {
