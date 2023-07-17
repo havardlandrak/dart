@@ -78,13 +78,16 @@ h1 {
 }
 
 button {
-    height: 1.5em;
-    width: 1.5em;
+    height: 1em;
+    width: 1em;
+    font-size: 2em;
     border-radius: 100%;
     border:none;
     box-shadow: 0 0 2px #ffffff;
-    font-size: large;
     align-self: center;
+    justify-content: center;
+    display: inline-flex;
+    align-items: center;
     color: white;
 }
 

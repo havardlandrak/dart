@@ -5,10 +5,10 @@ function generateBoard() {
         // input into error box or something
         return;
     }
-    updateBoard(players)
+    updateBoard()
 }
 
-function updateBoard(players) {
+function updateBoard(players = document.getElementById("numplayers").value, newRoundflag = false) {
     if (players > 4 && !checkPassword()) {
         showBecca()
         return
@@ -16,8 +16,12 @@ function updateBoard(players) {
     hideBecca()
 
     if (document.getElementById("players-grid").innerHTML=="") {
-        createScoreKeeper()
+        createScoreKeeper();
         addSingleRow(0);
+        addSingleRow(1, true);
+    }
+    else if (newRoundflag) {
+        createScoreKeeper();
         addSingleRow(1, true);
     }
     updatePlayers(players)
@@ -155,6 +159,12 @@ function handleKeyPress(e) {
         }
         else if (e.ctrlKey && e.keyCode == 189) {
             removePlayer(parseInt(players))
+        }
+        else if (e.ctrlKey && e.keyCode == 82) {
+            resetBoard()
+        }
+        else if (e.ctrlKey && e.keyCode == 78) {
+            newRound()
         }
         else if (e.key == "Tab" && isLastRow(current) && getPlayer(current) == parseInt(players) - 1) {
             addSingleRow(getRow(current)+1)
@@ -355,4 +365,16 @@ function goToNextPlayer(current) {
 
 function generateCellId(player, row) {
     return "p"+player+"r"+row
+}
+
+function resetBoard() {
+    document.getElementById("players-grid").innerHTML=""
+    generateBoard()
+}
+
+function newRound() {
+    var tempRow = document.getElementById("players-grid").firstElementChild
+    document.getElementById("players-grid").innerHTML ="" 
+    document.getElementById("players-grid").appendChild(tempRow)
+    updateBoard(document.getElementById("numplayers").value, true)
 }
