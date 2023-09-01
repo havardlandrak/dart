@@ -129,10 +129,10 @@ function handleKeyPress(e) {
         var current = document.activeElement.id
         var players = document.getElementById("numplayers").value
         if (current == "gointo" || current == "body") {
-            if (e.ctrlKey && e.keyCode == 187) {
+            if (e.altKey && e.keyCode == 187) {
                 addPlayer(parseInt(players))
             }
-            else if (e.ctrlKey && e.keyCode == 189) {
+            else if (e.altKey && e.keyCode == 189) {
                 removePlayer(parseInt(players))
             }
             return
@@ -149,21 +149,25 @@ function handleKeyPress(e) {
                 updateBoard(parseInt(players))
             }
             handleKeyUp()
+            if (getCellValue(current)[0] = "r" && getCellValue(current) > parseInt(document.getElementById("goingto").value)) {
+                document.activeElement.value = "-"
+            }
             goToNextPlayer(current)
+            
         }
         else if (e.key == "ArrowDown" || e.key == "ArrowUp") {
             changeBox(current, e.key.split("row")[1], players)
         }
-        else if (e.ctrlKey && e.keyCode == 187) {
+        else if (e.altKey && e.keyCode == 187) {
             addPlayer(parseInt(players))
         }
-        else if (e.ctrlKey && e.keyCode == 189) {
+        else if (e.altKey && e.keyCode == 189) {
             removePlayer(parseInt(players))
         }
-        else if (e.ctrlKey && e.keyCode == 82) {
+        else if (e.altKey && e.keyCode == 82) {
             resetBoard()
         }
-        else if (e.ctrlKey && e.keyCode == 78) {
+        else if (e.altKey && e.keyCode == 78) {
             newRound()
         }
         else if (e.key == "Tab" && isLastRow(current) && getPlayer(current) == parseInt(players) - 1) {
@@ -277,7 +281,7 @@ function checkScore(current) {
     else if (currentValue == goingto) {
         color = "green"
     }
-    else if (currentValue > goingto) {
+    else if (currentValue > goingto || currentValue == "-") {
         color = "red"
     }
     document.getElementById(current).style.backgroundColor = color
