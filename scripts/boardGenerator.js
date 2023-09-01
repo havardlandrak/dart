@@ -10,10 +10,12 @@ function generateBoard() {
 
 function updateBoard(players = document.getElementById("numplayers").value, newRoundflag = false) {
     if (players > 4 && !checkPassword()) {
-        showBecca()
+        showInfo("becca")
+        showInfo("password")
         return
     }
-    hideBecca()
+    hideInfo("becca")
+    hideInfo("password")
 
     if (document.getElementById("players-grid").innerHTML=="") {
         createScoreKeeper();
@@ -111,14 +113,12 @@ function checkPassword() {
     return (document.getElementById("password").value == "dart" || document.getElementById("password").value == "rebeccaebest")
 }
 
-function showBecca() {
-    document.getElementById("becca").className = "show center"
-    document.getElementById("password").className = "show center"
+function showInfo(cellid) {
+    document.getElementById(cellid).className = "show center"
 }
 
-function hideBecca() {
-    document.getElementById("becca").className = "hide center"
-    document.getElementById("password").className = "hide center"
+function hideInfo(cellid) {
+    document.getElementById(cellid).className = "hide center"
 }
 
 function isLastRow(current) {
@@ -153,7 +153,6 @@ function handleKeyPress(e) {
                 document.activeElement.value = "-"
             }
             goToNextPlayer(current)
-            
         }
         else if (e.key == "ArrowDown" || e.key == "ArrowUp") {
             changeBox(current, e.key.split("row")[1], players)
@@ -187,6 +186,7 @@ function handleKeyUp() {
         }
         checkScore(current)
     }
+    checkIfClown(current)
 }
 
 function getCellValue(_id) {
@@ -285,6 +285,7 @@ function checkScore(current) {
         color = "red"
     }
     document.getElementById(current).style.backgroundColor = color
+    // TODO: LA
 }
 
 function isMath(text) {
@@ -365,6 +366,7 @@ function goToNextPlayer(current) {
     } catch {
         console.log("Could not navigate to non-existing cell: " + generateCellId(player, row))
     }
+    //checkIfClown(document.getElementById(generateCellId(player, row)).id)
 }
 
 function generateCellId(player, row) {
@@ -382,3 +384,59 @@ function newRound() {
     document.getElementById("players-grid").appendChild(tempRow)
     updateBoard(document.getElementById("numplayers").value, true)
 }
+
+function checkIfClown(current) {
+    counter = 0;
+    cellToCheck = current
+    while (getRow(cellToCheck) > 0) {
+        if (getDifferentRow(current, getRow(cellToCheck) - 1).charAt(0) == '-' || getDifferentRow(current, getRow(cellToCheck) - 1) == "") {
+            counter++
+            cellToCheck = "p"+getPlayer(cellToCheck)+"r"+ (getRow(cellToCheck) - 1)
+        }
+        else {
+            break
+        }
+    }
+    if (counter >= 3) {
+        playClown()
+    }
+    else {
+        stopClown()
+    }
+}
+
+var soundFile = document.createElement("audio");
+soundFile.preload = "auto";
+
+//Load the sound file (using a source element for expandability)
+var src = document.createElement("source");
+src.src = "music/clown.mp3";
+soundFile.appendChild(src);
+
+//Load the audio tag
+//It auto plays as a fallback
+soundFile.load();
+soundFile.volume = 0.50;
+
+function playClown() {
+    //Create the audio tag
+    
+    soundFile.play();
+}
+
+function play() {
+    //Set the current time for the audio file to the beginning
+    soundFile.currentTime = 0.01;
+    soundFile.volume = volume;
+    soundFile.muted = false
+ 
+    //Due to a bug in Firefox, the audio needs to be played after a delay
+    setTimeout(function(){soundFile.play();},1);
+ }
+
+ function stopClown() {
+    soundFile.pause()
+    soundFile.currentTime = 0
+ }
+
+ // TODO: LA
