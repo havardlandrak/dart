@@ -218,7 +218,12 @@ function whatsMissing(current) {
     }
 
     var totalInt = parseInt(document.getElementById("goingto").value);
-    document.getElementById("missing"+current.charAt(1)).value = (totalInt - currentInt)
+    if (currentInt < 69) {
+        document.getElementById("missing"+current.charAt(1)).value = (totalInt - currentInt) + " (" + (69 - currentInt) + ")"
+    }
+    else {
+        document.getElementById("missing"+current.charAt(1)).value = (totalInt - currentInt)
+    }
 }
 
 function getScoreAbove(current) {
