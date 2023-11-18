@@ -144,15 +144,11 @@ function handleKeyPress(e) {
             if (getRow(current) != 0) {
                 addPreviousToCurrent(current)
             }
-            if (isLastRow(current) && getPlayer(current) == parseInt(players) - 1) {
-                addSingleRow(getRow(current)+1)
-                updateBoard(parseInt(players))
-            }
-            handleKeyUp()
             if (getCellValue(current)[0] = "r" && getCellValue(current) > parseInt(document.getElementById("goingto").value)) {
                 document.activeElement.value = "-"
             }
-            goToNextPlayer(current)
+            handleKeyUp()
+            goToNextPlayer(current);
         }
         else if (e.key == "ArrowDown" || e.key == "ArrowUp") {
             changeBox(current, e.key.split("row")[1], players)
@@ -177,6 +173,7 @@ function handleKeyPress(e) {
 
 function handleKeyUp() {
     var current = document.activeElement.id
+    updateBoard(parseInt(document.getElementById("numplayers").value));
     if (current == "goingto") {
         generateBoard()
     } 
@@ -190,8 +187,23 @@ function handleKeyUp() {
 }
 
 function getCellValue(_id) {
-    return document.getElementById(_id).value;
+    myValue = trimUntilHapy(document.getElementById(_id).value)
+
+    return myValue;
 }
+
+function trimUntilHapy(myString) {
+    if (!myString) return "";
+    if (!isCharNumber(myString.slice(-1))) {
+        myString = myString.slice(0, -1);
+        myString = trimUntilHapy(myString)
+    }
+    return myString;
+}
+
+function isCharNumber(c) {
+    return (c >= '0' && c <= '9') || c == ')';
+  }
 
 function getRow(_id) {
     return parseInt(_id.split("r")[1]);
@@ -269,16 +281,12 @@ function addPreviousToCurrent(current) {
 }
 
 function checkScore(current) {
-    try {
-        var currentValue = Function(`'use strict'; return (${getCellValue(current)})`)()
-    }
-    catch {
-        var currentValue = getCellValue(current)
-    }
     if (current == "plus" || current == "minus") {
         return
     }
+    var currentValue = document.getElementById(current).value
     var goingto = parseInt(document.getElementById("goingto").value)
+
     var color = "rgba(208, 208, 208, 0.80)"
     if (currentValue == "69") {
         color = "hotpink";
@@ -286,7 +294,7 @@ function checkScore(current) {
     else if (currentValue == goingto) {
         color = "green"
     }
-    else if (currentValue > goingto || currentValue == "-") {
+    else if (currentValue == "-") {
         color = "red"
     }
     document.getElementById(current).style.backgroundColor = color
@@ -365,11 +373,20 @@ function goToNextPlayer(current) {
     player = (parseInt(current.charAt(1)) + 1) % parseInt(document.getElementById("numplayers").value)
     if (player == 0) {
         row += 1;
+        if (isLastRow(current) && getPlayer(current) == parseInt(document.getElementById("numplayers").value) - 1) {
+            addSingleRow(row);
+        }
     }
-    try {
-        document.getElementById(generateCellId(player, row)).focus()
-    } catch {
-        console.log("Could not navigate to non-existing cell: " + generateCellId(player, row))
+    nextplayer = generateCellId(player, row);
+    if (getLastValidScore(nextplayer) == parseInt(document.getElementById("goingto").value) || getCellValue(nextplayer)) {
+        goToNextPlayer(nextplayer);
+    }
+    else {
+        try {
+            document.getElementById(nextplayer).focus()
+        } catch {
+            console.log("Could not navigate to non-existing cell: " + generateCellId(player, row))
+        }
     }
     //checkIfClown(document.getElementById(generateCellId(player, row)).id)
 }
