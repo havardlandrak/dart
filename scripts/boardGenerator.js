@@ -187,16 +187,16 @@ function handleKeyUp() {
 }
 
 function getCellValue(_id) {
-    myValue = trimUntilHapy(document.getElementById(_id).value)
+    myValue = trimUntilHappy(document.getElementById(_id).value)
 
     return myValue;
 }
 
-function trimUntilHapy(myString) {
+function trimUntilHappy(myString) {
     if (!myString) return "";
     if (!isCharNumber(myString.slice(-1))) {
         myString = myString.slice(0, -1);
-        myString = trimUntilHapy(myString)
+        myString = trimUntilHappy(myString)
     }
     return myString;
 }
@@ -277,6 +277,11 @@ function addPreviousToCurrent(current) {
     }
 
     var newValue = getScoreAbove(current) + currentInt
+    var halfwayThere = parseInt(document.getElementById("goingto").value) / 2
+
+    if (getScoreAbove(current) < halfwayThere && newValue >= halfwayThere) {
+        JBJTime()
+    }
     document.getElementById(current).value = newValue
 }
 
@@ -379,13 +384,23 @@ function goToNextPlayer(current) {
     }
     nextplayer = generateCellId(player, row);
     if (getLastValidScore(nextplayer) == parseInt(document.getElementById("goingto").value) || getCellValue(nextplayer)) {
-        goToNextPlayer(nextplayer);
+        try {
+            document.getElementById(nextplayer)
+            goToNextPlayer(nextplayer);
+        }
+        catch {
+            stopClown();
+            stopMillionaire();
+            console.log("Could not navigate to non-existing cell: " + generateCellId(player, row));
+            document.getElementById(current).focus()
+        }
     }
     else {
         try {
             document.getElementById(nextplayer).focus()
         } catch {
-            console.log("Could not navigate to non-existing cell: " + generateCellId(player, row))
+            console.log("Could not navigate to non-existing cell: " + generateCellId(player, row));
+            
         }
     }
     //checkIfClown(document.getElementById(generateCellId(player, row)).id)
@@ -410,6 +425,13 @@ function newRound() {
 function checkIfClown(current) {
     counter = 0;
     cellToCheck = current
+    curVal = getCellValue(current);
+    gointoVal = parseInt(document.getElementById("goingto").value)
+    if (curVal == gointoVal) {
+        stopClown();
+        stopMillionaire();
+        return;
+    }
     while (getRow(cellToCheck) > 0) {
         if (getDifferentRow(current, getRow(cellToCheck) - 1).charAt(0) == '-' || getDifferentRow(current, getRow(cellToCheck) - 1) == "") {
             counter++
@@ -419,6 +441,12 @@ function checkIfClown(current) {
             break
         }
     }
+    if (counter == 2) {
+        playMillionaire()
+    }
+    else {
+        stopMillionaire()
+    }
     if (counter >= 3) {
         playClown()
     }
@@ -427,8 +455,11 @@ function checkIfClown(current) {
     }
 }
 
+// CLOWN
+
 var soundFile = document.createElement("audio");
 soundFile.preload = "auto";
+soundFile.loop = true;
 
 //Load the sound file (using a source element for expandability)
 var src = document.createElement("source");
@@ -441,24 +472,64 @@ soundFile.load();
 soundFile.volume = 0.50;
 
 function playClown() {
-    //Create the audio tag
-    
     soundFile.play();
 }
 
+function stopClown() {
+    soundFile.pause()
+}
+
+// MILLIONAIRE
+
+var soundFile2 = document.createElement("audio");
+soundFile2.preload = "auto";
+
+//Load the sound file (using a source element for expandability)
+var src2 = document.createElement("source");
+src2.src = "music/millionaire.mp3";
+soundFile2.appendChild(src2);
+
+//Load the audio tag
+//It auto plays as a fallback
+soundFile2.load();
+soundFile2.volume = 0.50;
+soundFile2.loop = true;
+
+function playMillionaire() {
+    soundFile2.play();
+}
+
+function stopMillionaire() {
+    soundFile2.pause()
+    soundFile2.currentTime = 0
+}
+
+// BJ TIME
+
+var soundFile3 = document.createElement("audio");
+soundFile3.preload = "auto";
+
+//Load the sound file (using a source element for expandability)
+var src3 = document.createElement("source");
+src3.src = "music/oooh.mp3";
+soundFile3.appendChild(src3);
+
+//Load the audio tag
+//It auto plays as a fallback
+soundFile3.load();
+soundFile3.volume = 1;
+
+function JBJTime() {
+    soundFile3.currentTime = 0
+    soundFile3.play();
+}
+
 function play() {
-    //Set the current time for the audio file to the beginning
+//Set the current time for the audio file to the beginning
     soundFile.currentTime = 0.01;
     soundFile.volume = volume;
     soundFile.muted = false
- 
-    //Due to a bug in Firefox, the audio needs to be played after a delay
-    setTimeout(function(){soundFile.play();},1);
- }
 
- function stopClown() {
-    soundFile.pause()
-    soundFile.currentTime = 0
- }
-
- // TODO: LA
+//Due to a bug in Firefox, the audio needs to be played after a delay
+setTimeout(function(){soundFile.play();},1);
+}
