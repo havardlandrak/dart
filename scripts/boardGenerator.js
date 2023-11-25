@@ -233,6 +233,12 @@ function whatsMissing(current) {
     if (currentInt < 69) {
         document.getElementById("missing"+current.charAt(1)).value = (totalInt - currentInt) + " (" + (69 - currentInt) + ")"
     }
+    else if (currentInt == 69 && document.getElementById(current).value.slice(-1) != '*') {
+        document.getElementById("missing"+current.charAt(1)).value = "☺"
+    }
+    else if (currentInt < parseInt(document.getElementById("goingto").value) / 2) {
+        document.getElementById("missing"+current.charAt(1)).value = (totalInt - currentInt) + " [" + (Math.ceil(parseInt(document.getElementById("goingto").value) / 2) - currentInt) + "]"
+    }
     else {
         document.getElementById("missing"+current.charAt(1)).value = (totalInt - currentInt)
     }
