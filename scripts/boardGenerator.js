@@ -148,7 +148,7 @@ function handleKeyPress(e) {
                 document.activeElement.value = "-"
             }
             handleKeyUp()
-            goToNextPlayer(current);
+            goToNextPlayer(current, current);
         }
         else if (e.key == "ArrowDown" || e.key == "ArrowUp") {
             changeBox(current, e.key.split("row")[1], players)
@@ -202,7 +202,7 @@ function trimUntilHappy(myString) {
 }
 
 function isCharNumber(c) {
-    return (c >= '0' && c <= '9') || c == ')';
+    return (c >= '0' && c <= '9') || c == ')' || c == '*';
   }
 
 function getRow(_id) {
@@ -223,6 +223,9 @@ function whatsMissing(current) {
     try {
         if (document.getElementById(current) == document.activeElement && Number.isInteger(parseInt(getCellValue(current)))) {
             currentInt += Function(`'use strict'; return (${getCellValue(current)})`)()
+            if (aboveIsNice(current)) {
+                currentInt += Function(`'use strict'; return (${getCellValue(current)})`)()
+            }
         }
     }
     catch {
@@ -273,6 +276,10 @@ function getLastValidScore(current) {
     
 }
 
+function aboveIsNice(current){
+    return (getScoreAbove(current) == 69 && getDifferentRow(current, getRow(current)-1).slice(-1)!="*")
+}
+
 function addPreviousToCurrent(current) {
     var currentInt = 0
     if (Number.isNaN(parseInt(getCellValue(current)))) {
@@ -281,8 +288,13 @@ function addPreviousToCurrent(current) {
     else {
         currentInt = parseInt(getCellValue(current))
     }
-
-    var newValue = getScoreAbove(current) + currentInt
+    if  (aboveIsNice(current)) {
+        var newValue = getScoreAbove(current) + currentInt * 2
+    }
+    else {
+        var newValue = getScoreAbove(current) + currentInt
+    }
+    
     var halfwayThere = parseInt(document.getElementById("goingto").value) / 2
 
     if (getScoreAbove(current) < halfwayThere && newValue >= halfwayThere) {
@@ -379,7 +391,7 @@ function removePlayer(players = parseInt(document.getElementById("numplayers").v
     updateBoard(players)
 }
 
-function goToNextPlayer(current) {
+function goToNextPlayer(current, navfrom) {
     row = getRow(current)
     player = (parseInt(current.charAt(1)) + 1) % parseInt(document.getElementById("numplayers").value)
     if (player == 0) {
@@ -389,10 +401,21 @@ function goToNextPlayer(current) {
         }
     }
     nextplayer = generateCellId(player, row);
+    if (getRow(nextplayer) - 1 > getRow(navfrom)) {
+        stopClown();
+        stopMillionaire();
+        try {
+            document.getElementById(navfrom.split("r")[0] + "r" + (getRow(navfrom)+1)).focus()
+        } catch {
+            console.log("Could not navigate to non-existing cell: " + generateCellId(player, row));
+            
+        }
+        return;
+    }
     if (getLastValidScore(nextplayer) == parseInt(document.getElementById("goingto").value) || getCellValue(nextplayer)) {
         try {
             document.getElementById(nextplayer)
-            goToNextPlayer(nextplayer);
+            goToNextPlayer(nextplayer, navfrom);
         }
         catch {
             stopClown();
